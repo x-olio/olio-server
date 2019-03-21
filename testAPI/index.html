@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+
+
+
+        function create() {
+            let input = document.getElementsByName("txt_ctoken")[0];
+            let token = input.value;
+            
+            axios.post("http://localhost:9001/testc", {
+                param: {
+                    token: token,
+                    data: new ArrayBuffer(new Uint8Array([255, 255]))
+                }
+            }).then((response) => {
+                console.log(response.data);
+            }).catch((e) => {
+                console.log(e);
+            });
+
+        }
+        
+        function serch() {
+            let input = document.getElementsByName("txt_stoken")[0];
+            let token = input.value;
+            axios.get("http://localhost:9001/tests", {
+                param: {
+                    token: token,
+                }
+            }).then((response) => {
+                console.log(response.data);
+            }).catch((e) => {
+                console.log(e);
+            });
+        }
+    </script>
+</head>
+
+<body>
+
+    create:<input class="txt_ctoken" type="text" placeholder="token" />
+    <button onclick="create();">确定</button>
+
+    <br />
+    <br />
+    serch:<input class="txt_stoken" type="text" placeholder="token" />
+    <button onclick="serch">确定</button>
+</body>
+
+</html>

@@ -2,13 +2,13 @@
     "name": "olio-server",
     "version": "1.0.0",
     "description": "",
-    "main": "./bin/Server.js",
+    "main": "./bin/App.js",
     "scripts": {
-        "start": "forever start -o out.log -e err.log ./bin/Server.js",
-        "stop": "forever stop ./bin/Server.js",
-        "restart": "forever restart ./bin/Server.js",
+        "start": "forever start -o out.log -e err.log ./bin/App.js",
+        "stop": "forever stop ./bin/App.js",
+        "restart": "forever restart ./bin/App.js",
         "stopall": "forever stopall",
-        "debug": "node --inspect=0.0.0.0:9229 ./bin/Server.js",
+        "debug": "node --inspect=0.0.0.0:9229 ./bin/App.js",
         "clean": "rm -rf bin bin.zip logs",
         "ll": "forever list",
         "lh": "forever --help"

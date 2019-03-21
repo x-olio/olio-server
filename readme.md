@@ -7,8 +7,13 @@
 
 #npm 指令
     npm run start 启动服务器
+
     npm run stop  关闭服务器
+
     npm run restart 重启服务器
+
     npm run debug 启动远程调试
+    
     npm run clean 清除临时数据
+    
     npm run ll 查看进程列表
