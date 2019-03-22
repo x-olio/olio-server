@@ -4,9 +4,8 @@ import { OverrideConsole } from "./base/OverrideConsole";
 import { StoreUtils } from "./game/StoreUtils";
 import { WebServer } from "./base/server/WebServer";
 import { WebSocketServet } from "./base/server/WebSocketServet";
-import { OAuthService } from "./base/OAuth/OAuthService";
 export * from "./base/protocal";
-
+export * from "./game/protocal";
 
 async function Init()
 {
@@ -23,10 +22,8 @@ async function Start()
 {
     OverrideConsole.Init();
     await Init();
-    let webserver = new WebServer();    
-    await webserver.Run();
-    let wserver = new WebSocketServet();
-    await wserver.Run();
+    await new WebServer().InitService().Run();
+    await new WebSocketServet().Run();
 }
 
 

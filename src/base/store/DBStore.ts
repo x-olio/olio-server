@@ -84,7 +84,7 @@ function updateField(field: string)
  * DBStore存储
  */
 export class DBStore<T extends DBStoreModel>  {
-    protected dataMgr: Sequelize.Model<T, any>;
+    public dataMgr: Sequelize.Model<T, any>;
     private template: T;
     private model: ClassType<T>;
     private objField = new Set();
@@ -173,7 +173,7 @@ export class DBStore<T extends DBStoreModel>  {
         }
     }
 
-    public async Init(model: ClassType<T>, indexs: Sequelize.DefineIndexesOptions[] = null)
+    public async Init(model: ClassType<T>, indexs: Sequelize.DefineIndexesOptions[] = undefined)
     {
 
         this.model = model;
@@ -214,15 +214,28 @@ export class DBStore<T extends DBStoreModel>  {
                     case "boolean":
                         seType = Sequelize.BOOLEAN;
                         break;
+                    case DBFieldType[DBFieldType.String32]:
+                        seType = Sequelize.STRING(32);
+                        break;
+                    case DBFieldType[DBFieldType.String40]:
+                        seType = Sequelize.STRING(40);
+                        break;
+                    case DBFieldType[DBFieldType.String80]:
+                        seType = Sequelize.STRING(80);
+                        break;
                     case DBFieldType[DBFieldType.String64]:
                         seType = Sequelize.STRING(64);
                         break;
-                    case DBFieldType[DBFieldType.String32]:
-                        seType = Sequelize.STRING(32);
+                    case DBFieldType[DBFieldType.String256]:
+                        seType = Sequelize.STRING(256);
                         break;
                     case DBFieldType[DBFieldType.Buffer]:
                         seType = Sequelize.BLOB;
                         break;
+                    case DBFieldType[DBFieldType.DATE]:
+                        seType = Sequelize.DATE;
+                        break;
+
                     default:
                         this.objField.add(key);
                         options[key] = {

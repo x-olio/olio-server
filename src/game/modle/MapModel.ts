@@ -3,8 +3,8 @@ import { DBStoreModel, DBField, DBFieldType } from "../../base/store/DBStoreMode
 export class MapModel extends DBStoreModel
 {
 
-    @DBField(DBFieldType.String64)
-    user_token: string = "";
+
+    user_id: number = 0;
 
     @DBField(DBFieldType.String32)
     name: string = "";

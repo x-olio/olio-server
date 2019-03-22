@@ -2,7 +2,7 @@ import { HttpAPI, HttpAPIAttr } from "../../../base/server/WebServer";
 import { StoreUtils } from "../../../game/StoreUtils";
 
 
-@HttpAPIAttr("/testc")
+@HttpAPIAttr("/api/testc")
 export class TestC extends HttpAPI
 {
     Handle()
@@ -15,7 +15,7 @@ export class TestC extends HttpAPI
     }
 }
 
-@HttpAPIAttr("/tests", "GET", `测试`)
+@HttpAPIAttr("/api/tests", "GET", `测试`)
 export class TestH extends HttpAPI
 {
     Handle()

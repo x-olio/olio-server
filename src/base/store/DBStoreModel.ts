@@ -1,8 +1,15 @@
+
+
+import * as Sequelize from "sequelize"
 export enum DBFieldType
 {
     String32,
+    String40,
     String64,
-    Buffer
+    String80,
+    String256,
+    Buffer,
+    DATE
 }
 
 
@@ -30,7 +37,7 @@ export function GetFieldInfo(): Map<any, Map<string, DBFieldType>>
  * 数据存储单元必须继承此类 
  * 成员必须包含默认值 (数据类型支持 string | number | boolean|Array|Object)
  */
-export class DBStoreModel
+export class DBStoreModel 
 {
     /**
      * 保留属性
@@ -50,4 +57,6 @@ export class DBStoreModel
      * @field 自己的字段名
      */
     public updateField(field: string) { }
+
+    public toJSON():any { }
 }

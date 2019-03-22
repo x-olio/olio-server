@@ -4,7 +4,6 @@ import * as http from "http"
 import * as  multer from "multer"
 import { Config } from "../Config";
 
-
 export class IResult
 {
     error: number = 1;
@@ -134,19 +133,16 @@ export class WebServer
 
     constructor()
     {
-        this.InitService();
-    }
-
-    private InitService()
-    {
-
         this.app = express();
         this.app.engine('html', require("ejs").__express);
         this.app.set('view engine', 'html');
         this.app.use(bodyParser.urlencoded());
         this.app.use(bodyParser.json());
         this.app.use(multer().single());
+    }
 
+    public InitService()
+    {
         let headConfig = Config.Instance.http.headers;
         this.app.all("*", (req: express.Request, res: express.Response, next: express.NextFunction) =>
         {
@@ -175,6 +171,7 @@ export class WebServer
             } else
                 this.Next(handle, res);
         });
+        return this;
     }
 
     public async Run()
@@ -195,4 +192,5 @@ export class WebServer
         if (result && !(result instanceof Promise))
             res.send(JSON.parse(result));
     }
+
 }

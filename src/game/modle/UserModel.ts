@@ -2,10 +2,18 @@ import { DBStoreModel, DBField, DBFieldType } from "../../base/store/DBStoreMode
 
 export class UserModel extends DBStoreModel
 {
+    @DBField(DBFieldType.String32)
+    public username: string = "";
 
     @DBField(DBFieldType.String32)
-    public name: string = "";
+    public nickname: string = "";
+
+    @DBField(DBFieldType.String32)
+    public password: string = "";
+
+    @DBField(DBFieldType.String32)
+    public phone: string = "";
     
     @DBField(DBFieldType.String64)
-    public token: string = "";
+    public email: string = "";
 }
