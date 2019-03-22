@@ -1,15 +1,16 @@
 {
     "http": {
-        "address": "0.0.0.0",
-        "port": 9001
-    },
-    "https": {
-        "address": "0.0.0.0",
-        "port": 9002,
-        "credentials": {
-            "key": "",
-            "cert": ""
+        "host": "0.0.0.0",
+        "port": 9001,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild",
+            "Access-Control-Allow-Methods": "PUT, POST, GET, DELETE, OPTIONS"
         }
+    },
+    "websocket": {
+        "host": "0.0.0.0",
+        "port": 9002
     },
     "database": {
         "db": "olio_base",

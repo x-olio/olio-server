@@ -7,48 +7,76 @@
 
 
 
-        function create() {
-            let input = document.getElementsByName("txt_ctoken")[0];
+        function create() {           
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST","http://localhost:9001/testc?1=2&2=3&recv_bin=1");
+            xhr.send((new Uint8Array([255, 255, 10])));
+        }
+
+        function serch() {
+            let input = document.getElementsByClassName("txt_stoken")[0];
             let token = input.value;
-            
-            axios.post("http://localhost:9001/testc", {
+            axios.get("http://localhost:9001/tests?name=abc", {
                 param: {
                     token: token,
-                    data: new ArrayBuffer(new Uint8Array([255, 255]))
                 }
             }).then((response) => {
                 console.log(response.data);
             }).catch((e) => {
                 console.log(e);
             });
+        }
+        let socket;
+        function websocketTest() {
+            let input = document.getElementsByClassName("txt_socket")[0];
+            socket = new WebSocket(`ws://${input.value}`);
+
+            socket.onopen = () => {
+                console.log("websocket open ");
+            };
+            socket.onmessage = (data) => {
+                console.log("websocket data");
+                console.log(data);
+            };
+            socket.onclose = () => {
+                console.log("websocket close");
+            };
+
 
         }
-        
-        function serch() {
-            let input = document.getElementsByName("txt_stoken")[0];
-            let token = input.value;
-            axios.get("http://localhost:9001/tests", {
-                param: {
-                    token: token,
-                }
-            }).then((response) => {
-                console.log(response.data);
-            }).catch((e) => {
-                console.log(e);
-            });
+
+        function closewebsocket() {
+            socket.close();
+        }
+        function websocketsend() {
+            let buffer = new Uint8Array([255, 10, 255]);
+            socket.send(buffer);
         }
     </script>
 </head>
 
 <body>
 
-    create:<input class="txt_ctoken" type="text" placeholder="token" />
+    create:<input class="txt_ctoken" type="text" value="123" />
     <button onclick="create();">确定</button>
 
     <br />
     <br />
-    serch:<input class="txt_stoken" type="text" placeholder="token" />
-    <button onclick="serch">确定</button>
+    serch:<input class="txt_stoken" type="text" value="123" />
+    <button onclick="serch();">确定</button>
+    <br />
+    <br />
+    websocket:<input class="txt_socket" type="text" value="localhost:9002" />
+    <button onclick="websocketTest();">
+        确定
+    </button>
+
+    <button onclick="websocketsend();">
+        发送
+    </button>
+    <button onclick="closewebsocket();">
+        关闭
+    </button>
 </body>
 
 </html>

@@ -3,10 +3,14 @@ import * as stripJsonComments from "strip-json-comments"
 
 export interface HostConfig
 {
-    address: string;
+    host: string;
     port: number;
 
 
+}
+export interface HttpConfig extends HostConfig
+{
+    headers: { [key: string]: string };
 }
 export interface HttpsConfig extends HostConfig
 {
@@ -26,9 +30,9 @@ export class Config
 {
     private static instance: Config;
 
-    public http: HostConfig;
-    public https: HttpsConfig;
-  
+    public http: HttpConfig;
+    public websocket: HostConfig;
+
     public static get Instance(): Config
     {
 

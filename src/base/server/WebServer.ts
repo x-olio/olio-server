@@ -1,11 +1,6 @@
 import * as express from "express"
 import * as bodyParser from "body-parser"
-// import { Express } from "express"
 import * as http from "http"
-import * as https from "https"
-import * as fs from "fs"
-// import * as multiparty from "multiparty"
-// import * as formidable from "formidable"
 import * as  multer from "multer"
 import { Config } from "../Config";
 
@@ -40,11 +35,20 @@ export class SuccessRsult extends IResult
     }
 }
 
-export abstract class IHttpHandle
+const noSetKey = new Set<string>(["req", "res", "next"]);
+export abstract class HttpAPI
 {
+    dataBuffer: Buffer;
     constructor(protected req: express.Request, protected res: express.Response, protected next: express.NextFunction)
     {
-
+        for (let key of Object.keys(this))
+        {
+            if (!noSetKey.has(key))
+            {
+                let value = this.GetParam(key);
+                this[key] = value;
+            }
+        }
     }
     protected static SendJson(res: express.Response, content: any)
     {
@@ -77,13 +81,8 @@ export abstract class IHttpHandle
     }
     public SendJson(content: any)
     {
-        IHttpHandle.SendJson(this.res, content);
+        HttpAPI.SendJson(this.res, content);
     }
-    // public GetPost(callback: (err, fields, files: any) => void)
-    // {
-    //     var form = new formidable.IncomingForm();
-    //     form.parse(this.req, callback);
-    // }
 
     public GetParam(key: string)
     {
@@ -96,93 +95,104 @@ export abstract class IHttpHandle
     }
 }
 
-
-export function HttpHandleAttr(url: string)
+export interface HttpAPIInfo
 {
-    return function (constructor)
+    url: string;
+    method: "GET" | "POST";
+    desc?: string;
+    ctor: any;
+}
+export interface APIFieldInfo
+{
+    name: string;
+    desc: string;
+    type?: string;
+}
+export function HttpAPIAttr(url: string, method: "GET" | "POST" = "GET", desc?: string)
+{
+    return function (ctor)
     {
-        console.log(`注册处理器:${url}`);
-        WebServer.handles.set(url, constructor);
+        WebServer.handles.set(url, { url, method, desc, ctor });
     }
 }
 
+export function APIField(desc: string, type?: string)
+{
+    return function (target, propertyKey: string)
+    {
+
+    }
+}
 
 export class WebServer
 {
-    public static handles: Map<string, any> = new Map<string, any>();
-    public ready: boolean = true;
-    private app: express.Express;
+    public static handles: Map<string, HttpAPIInfo> = new Map<string, HttpAPIInfo>();
 
-    public constructor()
+    public app: express.Express;
+
+    public server: http.Server;
+
+    constructor()
     {
-
+        this.InitService();
     }
+
     private InitService()
     {
-        if (Config.Instance.http)
-        {
-            let httpServer = http.createServer(this.app);
-            httpServer.listen(Config.Instance.http.port, () =>
-            {
-                console.log(`开启HTTP服务完成 listener :${Config.Instance.http.port}`);
-            });
-
-        }
-        let ports = [];
-        ports.push(Config.Instance.http.port);
-
-        if (Config.Instance.https && Config.Instance.https.port && Config.Instance.https.credentials)
-        {
-            if (!fs.existsSync(Config.Instance.https.credentials.key))
-                return console.log("https开启失败 缺少私钥");
-            if (!fs.existsSync(Config.Instance.https.credentials.cert))
-                return console.log("https开启失败 缺少证书");
-
-            let options = {
-                key: fs.readFileSync(Config.Instance.https.credentials.key).toString(),
-                cert: fs.readFileSync(Config.Instance.https.credentials.cert).toString()
-            };
-
-            let httpsServer = https.createServer(options, this.app);
-
-            httpsServer.listen(Config.Instance.https.port, () =>
-            {
-                console.log(`开启HTTPS服务完成 listener :${Config.Instance.https.port}`);
-
-            });
-            ports.push(Config.Instance.https.port);
-        }
-
-
-    }
-
-    public async Run()
-    {
-
 
         this.app = express();
-
-        this.InitService();
-
+        this.app.engine('html', require("ejs").__express);
+        this.app.set('view engine', 'html');
         this.app.use(bodyParser.urlencoded());
         this.app.use(bodyParser.json());
         this.app.use(multer().single());
 
+        let headConfig = Config.Instance.http.headers;
         this.app.all("*", (req: express.Request, res: express.Response, next: express.NextFunction) =>
         {
-            res.header('Access-Control-Allow-Origin', '*');
-            res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
-            res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+            if (headConfig)
+                for (let key in headConfig)
+                    res.header(key, headConfig[key]);
+
+
             let handleCls = WebServer.handles.get(req.path);
             if (!handleCls)
                 return res.send(`nofind requst:${req.path}`);
-            let handle: IHttpHandle = new handleCls(req, res, next);
-            let result = handle.Handle.apply(handle);
-            if (result && !(result instanceof Promise))
-                res.send(JSON.parse(result));
-        });
 
+            let handle: HttpAPI = new handleCls.ctor(req, res, next);
+            if (req.query["recv_bin"] == "1")
+            {
+                let msg = [];
+                req.on("data", (chunk) =>
+                {
+                    msg.push(chunk);
+                });
+                req.on("end", () =>
+                {
+                    handle.dataBuffer = Buffer.concat(msg);
+                    this.Next(handle, res);
+                });
+            } else
+                this.Next(handle, res);
+        });
     }
 
+    public async Run()
+    {
+        if (Config.Instance.http)
+        {
+            this.server = http.createServer(this.app);
+            this.server.listen(Config.Instance.http.port, () =>
+            {
+                console.log(`开启HTTP服务完成 listener :${Config.Instance.http.port}`);
+            });
+        }
+    }
 
+    Next(handle: HttpAPI, res: express.Response)
+    {
+        let result = handle.Handle.apply(handle);
+        if (result && !(result instanceof Promise))
+            res.send(JSON.parse(result));
+    }
 }
