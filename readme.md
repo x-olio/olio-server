@@ -5,10 +5,13 @@
 
     在根目录 打开命令行 执行 npm install
 
-#npm 指令
-    npm run start 启动服务器
+#编译
+    tsc
 
-    npm run stop  关闭服务器
+#npm 指令
+    npm start 启动服务器
+
+    npm stop  关闭服务器
 
     npm run restart 重启服务器
 

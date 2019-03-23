@@ -12,7 +12,7 @@ async function Init()
     let dbConfig = Config.Instance["database"];
     DBStoreStatic.Init(dbConfig.db, dbConfig.host, dbConfig.port, dbConfig.user, dbConfig.password, (sqllog: string) =>
     {
-        // console.log(sqllog);
+        console.log(sqllog);
     });
     await StoreUtils.Init();
 }
@@ -22,8 +22,10 @@ async function Start()
 {
     OverrideConsole.Init();
     await Init();
+    
     await new WebServer().InitService().Run();
     await new WebSocketServet().Run();
+    
 }
 
 

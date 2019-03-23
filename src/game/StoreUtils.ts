@@ -23,11 +23,11 @@ export class StoreUtils
             {
                 unique: false,
                 fields: ["email"],
-                name: "un_index"
+                name: "uemail_index"
             }, {
                 unique: false,
                 fields: ["phone"],
-                name: "un_index"
+                name: "uphone_index"
             },
         ]));
 
@@ -35,17 +35,22 @@ export class StoreUtils
         finishArrs.push(this.Maps.Init(MapModel, [
             {
                 unique: false,
-                fields: ["user_token", "name"],
-                name: "ump_index"
+                fields: ["user_id"],
+                name: "mp_uid_index"
+            },
+            {
+                unique: false,
+                fields: ["name"],
+                name: "mp_name_index"
             }
         ]));
 
         this.UserVerify = new DBStore("olio_userverify");
         finishArrs.push(this.UserVerify.Init(UserVerifyModel, [
             {
-                unique: false,
-                fields: ["token"],
-                name: "uv_index"
+                unique: true,
+                fields: ["token", "user_id"],
+                name: "uv_pri_index"
             }
         ]));
         return finishArrs;
@@ -53,18 +58,6 @@ export class StoreUtils
 
     public static Init()
     {
-        return new Promise((resolve) =>
-        {
-            let finishArrs = this.GetInitPromise();
-            let count = 0, max = finishArrs.length;
-            for (let item of finishArrs)            
-            {
-                item.then(() =>
-                {
-                    if (++count >= max)
-                        resolve();
-                });
-            }
-        });
+        return Promise.all(this.GetInitPromise());
     }
 }

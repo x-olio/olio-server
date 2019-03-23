@@ -8,22 +8,9 @@ export class User
     {
 
         let str = `${uid}|${username}|${Date.now()}`;
-        let sign = MD5(str);
-        return EncryptionAES192(`${str}|${sign}`, Config.Instance.maketokenkey);
+        return MD5(str);
+        // let sign = MD5(str);
+        // return EncryptionAES192(`${str}|${sign}`, Config.Instance.maketokenkey);
     }
-    static ResolveToken(token: string)
-    {
-        let str = DecryptAES192(token, Config.Instance.maketokenkey);
-
-        let infos = str.split("|");
-        let sign = infos[3];
-        let verstr = `${infos[0]}|${infos[1]}|${infos[2]}`;
-        if (sign != verstr)
-            return;
-        return {
-            uid: infos[0],
-            username: infos[1],
-            time: [2]
-        }
-    }
+    
 }

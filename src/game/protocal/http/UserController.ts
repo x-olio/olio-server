@@ -51,20 +51,26 @@ export class UserLoginUname extends HttpAPI
         if (!user)
             return this.SendJson(this.Error(LangKey("user_login_err_0"), -1))
 
-        let token = User.MakeToken(user.id, this.username);
+        let token
 
-        let validtime = Date.now() + 84600;
+        let validtime = Date.now() + 84600000;
 
-        let verify = await StoreUtils.UserVerify.FindSigle(user.id, "user_id");
+        let verify = await StoreUtils.UserVerify.FindSigle("user_id", user.id);
 
         if (verify)
         {
+            token = verify.token;
             verify.validtime = validtime;
+            verify.save();
         } else
+        {
+            token = User.MakeToken(user.id, this.username);
             verify = await StoreUtils.UserVerify.dataMgr.create({
                 user_id: user.id,
-                validtime: validtime
+                validtime: validtime,
+                token: token
             });
+        }
 
         return this.SendJson(this.Success({
             token: token,
@@ -77,25 +83,40 @@ export class UserLoginUname extends HttpAPI
 @HttpAPIAttr("/api/user/reftoken", "POST", "刷新令牌")
 export class UserRefreshToken extends HttpAPI
 {
-    id: number;
-    token: string;
+    id: number = 0;
+    token: string = "";
 
     async Handle()
     {
-        let info = User.ResolveToken(this.token);
+        // let info = User.ResolveToken(this.token);
 
-        if (`${info.uid}` != `${this.id}`)
-            return this.SendJson(this.Error(LangKey("token_err_0"), -1));
+        // if (`${info.uid}` != `${this.id}`)
+        //     return this.SendJson(this.Error(LangKey("token_err_0"), -1));
 
-        let verify = await StoreUtils.UserVerify.FindSigle(this.id, "user_id");
+        let verify = await StoreUtils.UserVerify.FindSigle("token", this.token);
 
         if (!verify)
             return this.SendJson(this.Error(LangKey("token_err_1"), -2));
 
-        verify.validtime = Date.now() + 86400;
+        verify.validtime = Date.now() + 84600000;
 
         verify.save();
 
         this.SendJson(this.Success());
+    }
+}
+
+
+@HttpAPIAttr("/api/user/checktoken", "POST", "验证令牌")
+export class UserCheckToken extends HttpAPI
+{
+    token: string = "";
+    async Handle()
+    {
+        let verify = await StoreUtils.UserVerify.FindSigle("token", this.token);
+
+        if (!verify || verify.validtime < Date.now())
+            return this.SendError(LangKey("token_err_2"));
+        this.SendSuccess();
     }
 }

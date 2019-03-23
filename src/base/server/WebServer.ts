@@ -40,6 +40,11 @@ export abstract class HttpAPI
     dataBuffer: Buffer;
     constructor(protected req: express.Request, protected res: express.Response, protected next: express.NextFunction)
     {
+
+    }
+
+    public Init()
+    {
         for (let key of Object.keys(this))
         {
             if (!noSetKey.has(key))
@@ -83,6 +88,16 @@ export abstract class HttpAPI
         HttpAPI.SendJson(this.res, content);
     }
 
+    public SendSuccess(body: any = {})
+    {
+        HttpAPI.SendJson(this.res, new SuccessRsult(body));
+    }
+    public SendError(message: any = {}, code: number = 1)
+    {
+        HttpAPI.SendJson(this.res, new ErrorResult(code, message));
+    }
+
+
     public GetParam(key: string)
     {
         return this.req.query[key] || this.req.body[key];
@@ -97,7 +112,7 @@ export abstract class HttpAPI
 export interface HttpAPIInfo
 {
     url: string;
-    method: "GET" | "POST";
+    method: "GET" | "POST" | "ANY";
     desc?: string;
     ctor: any;
 }
@@ -107,10 +122,11 @@ export interface APIFieldInfo
     desc: string;
     type?: string;
 }
-export function HttpAPIAttr(url: string, method: "GET" | "POST" = "GET", desc?: string)
+export function HttpAPIAttr(url: string, method: "GET" | "POST" | "ANY" = "ANY", desc?: string)
 {
     return function (ctor)
     {
+        console.log(`${url},${method},${desc || "[无备注]"}`);
         WebServer.handles.set(url, { url, method, desc, ctor });
     }
 }
@@ -155,7 +171,11 @@ export class WebServer
             if (!handleCls)
                 return res.send(`nofind requst:${req.path}`);
 
+            if (handleCls.method != "ANY" && req.method != handleCls.method)
+                return res.send("error request");
+
             let handle: HttpAPI = new handleCls.ctor(req, res, next);
+            handle.Init();
             if (req.query["recv_bin"] == "1")
             {
                 let msg = [];
