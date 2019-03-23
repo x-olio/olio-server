@@ -32,7 +32,7 @@ export class Config
 
     public http: HttpConfig;
     public websocket: HostConfig;
-
+    public maketokenkey:string;
     public static get Instance(): Config
     {
 
