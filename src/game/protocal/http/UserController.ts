@@ -21,11 +21,14 @@ export class UserRegister extends HttpAPI
         user = await StoreUtils.Users.dataMgr.create(this);
 
         let token = User.MakeToken(user.id, this.username);
-        let validtime = Date.now() + 84600;
+        let validtime = Date.now() + 84600000;
+
         await StoreUtils.UserVerify.dataMgr.create({
             user_id: user.id,
-            validtime: validtime
+            validtime: validtime,
+            token: token
         });
+
         return this.SendJson(this.Success({
             token: token,
             validtime: validtime
@@ -59,7 +62,11 @@ export class UserLoginUname extends HttpAPI
 
         if (verify)
         {
-            token = verify.token;
+
+            if (verify.token.length != 32)
+                token = verify.token = User.MakeToken(user.id, this.username);
+            else
+                token = verify.token;
             verify.validtime = validtime;
             verify.save();
         } else
@@ -113,6 +120,8 @@ export class UserCheckToken extends HttpAPI
     token: string = "";
     async Handle()
     {
+        if (this.token.length != 32)
+            return this.SendError(LangKey("token_err_1"));
         let verify = await StoreUtils.UserVerify.FindSigle("token", this.token);
 
         if (!verify || verify.validtime < Date.now())
