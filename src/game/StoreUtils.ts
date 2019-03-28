@@ -1,5 +1,6 @@
 import { DBStore } from "../base/store/DBStore";
-import { MapModel, UserModel, UserVerifyModel } from "./modle";
+import { MapModel, UserModel, UserVerifyModel, MapBlockModel } from "./modle";
+
 
 
 
@@ -7,6 +8,7 @@ export class StoreUtils
 {
     public static Users: DBStore<UserModel>;
     public static Maps: DBStore<MapModel>;
+    public static MapBlocks: DBStore<MapBlockModel>;
     public static UserVerify: DBStore<UserVerifyModel>;
 
     private static GetInitPromise()
@@ -51,6 +53,24 @@ export class StoreUtils
                 unique: true,
                 fields: ["token", "user_id"],
                 name: "uv_pri_index"
+            }
+        ]));
+
+        this.Maps = new DBStore("olio_map");
+        finishArrs.push(this.Maps.Init(MapModel, [
+            {
+                unique: true,
+                fields: ["user_id", "name"],
+                name: "mp_pri_index"
+            }
+        ]));
+
+        this.MapBlocks = new DBStore("olio_mapblock");
+        finishArrs.push(this.MapBlocks.Init(MapBlockModel, [
+            {
+                unique: true,
+                fields: ["user_id", "name"],
+                name: "mb_pri_index"
             }
         ]));
         return finishArrs;

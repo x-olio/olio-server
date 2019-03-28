@@ -1,6 +1,7 @@
 import { DBStoreModel, DBField, DBFieldType } from "../../base/store/DBStoreModel";
 
-export class MapModel extends DBStoreModel
+
+export class MapBlockModel extends DBStoreModel
 {
 
 
@@ -11,7 +12,6 @@ export class MapModel extends DBStoreModel
 
     desc: string = "";
 
-    // @DBField(DBFieldType.Buffer)
-    // data_bin: Uint8Array = new Uint8Array([]);
     data: string = "";
+
 }
