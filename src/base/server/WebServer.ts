@@ -2,6 +2,7 @@ import * as express from "express"
 import * as bodyParser from "body-parser"
 import * as http from "http"
 import * as  multer from "multer"
+import * as path from "path"
 import { Config } from "../Config";
 
 export class IResult
@@ -149,12 +150,30 @@ export class WebServer
 
     constructor()
     {
+
         this.app = express();
         this.app.engine('html', require("ejs").__express);
         this.app.set('view engine', 'html');
         this.app.use(bodyParser.urlencoded());
         this.app.use(bodyParser.json());
-        this.app.use(multer().single());
+        // let single = multer().single();
+        this.app.use(multer().any());
+
+        let headConfig = Config.Instance.http.headers;
+        let paths = Config.Instance.publicdir;
+        for (let item of paths)
+        {
+            let staticDir = path.join(process.cwd(), item);
+            this.app.use(item, express.static(staticDir, {
+                setHeaders: (res) =>
+                {
+                    if (headConfig)
+                        for (let key in headConfig)
+                            res.header(key, headConfig[key]);
+                }
+            }));
+            console.log(`设置静态路径 ${staticDir} -> ${item}`);
+        }
     }
 
     public InitService()
@@ -211,6 +230,14 @@ export class WebServer
         let result = handle.Handle.apply(handle);
         if (result && !(result instanceof Promise))
             res.send(JSON.parse(result));
+        else if (result instanceof Promise)
+        {
+            result.then((value) =>
+            {
+                if (value && typeof (value) == "object")
+                    res.send(value);
+            });
+        }
     }
 
 }

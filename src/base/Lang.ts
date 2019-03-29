@@ -6,7 +6,8 @@ const lconfig = {
     "token_err_0": "token验证失败",
     "token_err_1": "token无效",
     "token_err_2": "token过期",
-    "map_err0": "地图信息错误"
+    "map_err0": "地图信息错误",
+    "map_block_err0": "地块信息错误"
 };
 
 export function LangKey(key: string): string

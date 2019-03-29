@@ -32,7 +32,8 @@ export class Config
 
     public http: HttpConfig;
     public websocket: HostConfig;
-    public maketokenkey:string;
+    public maketokenkey: string;
+    public publicdir: [];
     public static get Instance(): Config
     {
 
