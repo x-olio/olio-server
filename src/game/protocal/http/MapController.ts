@@ -69,7 +69,6 @@ export class DelMap extends UserAPI
     }
 }
 
-
 @HttpAPIAttr("/api/map/createblock", "POST", "创建地图块")
 export class CreateBlock extends UserAPI
 {
@@ -91,14 +90,17 @@ export class CreateBlock extends UserAPI
 
         let url = `${uploadDir}/${filename}`;
 
-        let filePath = path.normalize(`${process.cwd()}${url}`);
+        let filePath = path.normalize(`.${url}`);
 
-        if (!fs.existsSync(uploadDir))
+        if (!fs.existsSync(`.${uploadDir}`))
         {
-            mkdirp(uploadDir, (err) =>
+            
+            
+            
+            mkdirp(`.${uploadDir}`, (err) =>
             {
                 if (err)
-                    console.error(err);
+                    return console.error(err);
                 fs.writeFileSync(filePath, upfile.buffer);
             });
         } else
